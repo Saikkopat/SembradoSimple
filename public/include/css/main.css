@@ -1,0 +1,103 @@
+:root {
+	/* Colores principales*/
+	--dorado: #bc955c;
+	--guinda: #9f2241;
+ 
+	/* Familia rosas/púrpuras */
+	--rosa-claro: #f5aeb8;
+	--rosa-medio: #de7aaf;
+	--rosa-oscuro: #d72f89;
+	--lila: #a27ab5;
+ 
+	/* Familia cálidos */
+	--naranja: #f08217;
+	--rojo-vivo: #e5074c;
+	--cobre: #ac6d14;
+ 
+	/* Familia verdes */
+	--verde-oliva: #799b48;
+	--verde-bosque: #027a35;
+ 
+	/* Familia azules */
+	--azul-marino: #266cb4;
+	--azul-cielo: #73cae6;
+}
+
+@font-face {
+	font-family: 'Cabin';
+	src: local('Cabin'),
+		  url('/../SembradoSimple/public/assets/fonts/Cabin-Regular.ttf') format('truetype');
+	font-display: swap;
+	font-weight: 400;
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Roboto';
+	src: local('Roboto'),
+		  url('/../SembradoSimple/public/assets/fonts/Roboto-Regular.ttf') format('truetype');
+	font-display: swap;
+	font-weight: 400;
+	font-style: normal;
+}
+
+.text-guinda {
+	color: var(--guinda);
+}
+
+#header-container {
+	box-shadow: 0 0 5px 0 var(--guinda);
+}
+
+.btn-racimo {
+	background-color: var(--dorado);
+}
+
+.btn-uba {
+	background-color: var(--guinda);
+}
+
+.btn {
+	transition: all 0.3s ease-in-out;
+ }
+ 
+ .btn-racimo:hover {
+	background-color: color-mix(in srgb, var(--dorado), white 15%);
+ }
+ 
+ .btn-uba:hover {
+	background-color: color-mix(in srgb, var(--guinda), white 10%);
+ }
+
+
+ /*
+
+ 	FORMS
+ 
+ */
+
+.btn-guardar {
+	background-color: var(--verde-oliva);
+}
+
+#racimoForm, #formUBA {
+	width: 45%;
+}
+
+#racimoForm select, #formUBA select {
+	font-size: large;
+	height: 2.5em;
+}
+
+.is-invalid {
+	border-color: #dc3545;
+	background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right calc(0.375em + 0.1875rem) center;
+	background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+}
+
+.is-invalid:focus {
+	border-color: #dc3545;
+	box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
