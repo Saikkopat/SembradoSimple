@@ -21,12 +21,17 @@
 	/* Familia azules */
 	--azul-marino: #266cb4;
 	--azul-cielo: #73cae6;
+
+	/* Familia de grises */
+	--gris-40: #d1d1d1;
+	--gris-60: #b0b0b0;
+	--gris-f8: #f8f8f8;
 }
 
 @font-face {
 	font-family: 'Cabin';
 	src: local('Cabin'),
-		  url('/../SembradoSimple/public/assets/fonts/Cabin-Regular.ttf') format('truetype');
+		  url('../../assets/fonts/Cabin-Regular.ttf') format('truetype');
 	font-display: swap;
 	font-weight: 400;
 	font-style: normal;
@@ -43,6 +48,14 @@
 
 .text-guinda {
 	color: var(--guinda);
+}
+
+.text-dorado {
+	color: var(--dorado);
+}
+
+.text-cobre {
+	color: var(--cobre);
 }
 
 #header-container {
@@ -80,11 +93,20 @@
 	background-color: var(--verde-oliva);
 }
 
-#racimoForm, #formUBA {
-	width: 45%;
+#formUBA, #formRacimo {
+	background-color: var(--gris-f8);
+	padding: 1em;
 }
 
-#racimoForm select, #formUBA select {
+.form-label {
+	color: var(--guinda);
+}
+
+#formRacimo, #formUBA {
+	width: 55%;
+}
+
+#formRacimo select, #formUBA select {
 	font-size: large;
 	height: 2.5em;
 }
@@ -100,4 +122,11 @@
 .is-invalid:focus {
 	border-color: #dc3545;
 	box-shadow: 0 0 0 0.25rem rgba(220, 53, 69, 0.25);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+	#formUBA {
+		width: 95%;
+	}
 }
