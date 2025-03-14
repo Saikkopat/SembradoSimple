@@ -220,10 +220,34 @@ function handleGuardar(): void {
     $conn = getDatabaseConnection();
     $idUba = validatePostParam('id_uba');
     $idPersona = validatePostParam('persona');
+    $idAlcaldia = validatePostParam('id_alcaldia'); // Obtener el id_alcaldia del formulario
 
     try {
         pg_query($conn, "BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED");
-        
+
+        // Obtener el límite actual y máximo para el programa social (id_programa_social = 1) y la alcaldía específica
+        $limiteQuery = pg_query_params(
+            $conn,
+            "SELECT limite_actual, limite_max 
+             FROM limites_programas_sociales 
+             WHERE id_programa_social = $1 AND id_alcaldia = $2", // Filtramos por id_programa_social e id_alcaldia
+            [1, $idAlcaldia] // Usamos el valor fijo 1 para id_programa_social y el id_alcaldia del formulario
+        );
+
+        if (!$limiteQuery || pg_num_rows($limiteQuery) === 0) {
+            throw new RuntimeException('No se encontraron límites para el programa social en esta alcaldía.');
+        }
+
+        $limiteData = pg_fetch_assoc($limiteQuery);
+        $limiteActual = (int)$limiteData['limite_actual'];
+        $limiteMax = (int)$limiteData['limite_max'];
+
+        // Validar si se puede realizar la inserción
+        if ($limiteActual < $limiteMax) {
+            throw new RuntimeException('No es posible sembrar más, se ha alcanzado el límite máximo para esta alcaldía.');
+        }
+
+        // Insertar en sembrado_uba
         $result = pg_query_params(
             $conn,
             "INSERT INTO sembrado_uba (id_uba, id_persona) 
@@ -231,21 +255,32 @@ function handleGuardar(): void {
              RETURNING id_uba",
             [$idUba, $idPersona]
         );
-        
+
         if (!$result || pg_num_rows($result) === 0) {
-            throw new RuntimeException(
-                'Error en inserción: ' . pg_last_error($conn)
-            );
+            throw new RuntimeException('Error en inserción: ' . pg_last_error($conn));
         }
-        
+
+        // Actualizar el límite actual
+        $updateLimite = pg_query_params(
+            $conn,
+            "UPDATE limites_programas_sociales 
+             SET limite_actual = limite_actual + 1 
+             WHERE id_programa_social = $1 AND id_alcaldia = $2", // Filtramos por id_programa_social e id_alcaldia
+            [1, $idAlcaldia] // Usamos el valor fijo 1 para id_programa_social y el id_alcaldia del formulario
+        );
+
+        if (!$updateLimite) {
+            throw new RuntimeException('Error al actualizar el límite: ' . pg_last_error($conn));
+        }
+
         pg_query($conn, "COMMIT");
-        
+
         echo json_encode([
             'success' => true,
             'message' => 'Registro exitoso',
             'id' => pg_fetch_result($result, 0, 0)
         ]);
-        
+
     } catch (Throwable $e) {
         pg_query($conn, "ROLLBACK");
         sendErrorResponse($e->getMessage());

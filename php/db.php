@@ -1,5 +1,5 @@
 <?php
-$host = "192.168.1.93";
+$host = "201.103.152.176";
 $port = "5432";  // Agregar puerto
 $dbname = "sec";
 $user = "postgres";  // Corregir typo "posgres" -> "postgres"

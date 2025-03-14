@@ -148,48 +148,35 @@ $(document).ready(function () {
 
 	// Evento de envío del formulario
 	$('#formUBA').submit(function (e) {
-		 e.preventDefault();
-
-		 // Validación reforzada
-		 const personaId = $('#persona').val();
-		 const ubaId = $('#uba').val();
-		 
-		 if (!personaId || !ubaId) {
-			  showToast('Seleccione persona y UBA', 'error');
-			  return;
-		 }
-
-		 const formData = {
-			  action: 'guardar',
-			  id_uba: $('#uba').val(),
-			  persona: $('#persona').val(),
-		 };
-
-		 $.ajax({
-			  url: API_BASE,
-			  method: 'POST',
-			  dataType: 'json',
-			  data: formData,
-			  beforeSend: () => {
-					$('#submitBtn').prop('disabled', true);
-					showToast('Registrando persona...', 'info');
-			  },
-			  success: (response) => {
-					if (response && response.success) {
-						 showToast('Persona registrada y asignada exitosamente!');
-						 resetForm();
-					} else {
-						 const errorMsg = response?.error || 'Error en el registro';
-						 showToast(errorMsg, 'error');
-					}
-			  },
-			  error: (xhr) => {
-					const errorMsg = xhr.responseJSON?.error || 'Error de conexión';
-					showToast(errorMsg, 'error');
-			  },
-			  complete: () => $('#submitBtn').prop('disabled', false),
-		 });
-	});
+		e.preventDefault();
+  
+		const formData = {
+			 action: 'guardar',
+			 id_uba: $('#uba').val(),
+			 persona: $('#persona').val(),
+			 id_alcaldia: $('#id_alcaldia').val() // Asegúrate de incluir id_alcaldia
+		};
+  
+		$.ajax({
+			 url: API_BASE,
+			 method: 'POST',
+			 dataType: 'json',
+			 data: formData,
+			 success: (response) => {
+				  if (response && response.success) {
+						showToast('Persona registrada y asignada exitosamente!');
+						resetForm();
+				  } else {
+						const errorMsg = response?.error || 'Error en el registro';
+						showToast(errorMsg, 'error');
+				  }
+			 },
+			 error: (xhr) => {
+				  const errorMsg = xhr.responseJSON?.error || 'Error de conexión';
+				  showToast(errorMsg, 'error');
+			 }
+		});
+  });
 
 	// Inicialización
 	loadAlcaldias(); // Carga las alcaldías al cargar la página

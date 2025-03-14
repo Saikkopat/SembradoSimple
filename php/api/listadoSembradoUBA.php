@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/auxiliar.php';
+require_once __DIR__ . 'auxiliar.php';
 
 try {
     $action = $_POST['action'] ?? null;
