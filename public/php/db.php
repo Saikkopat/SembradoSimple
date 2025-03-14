@@ -1,17 +1,25 @@
 <?php
-$host = "localhost";
+$host = "192.168.1.93";
+$port = "5432";  // Agregar puerto
 $dbname = "sec";
-$user = "sembrado_user";
-$password = "P@ssw0rdSecure!";
+$user = "postgres";  // Corregir typo "posgres" -> "postgres"
+$password = "postgressapci!";  // Corregir typo "posgressapci!"
 
-// Conexión con verificación estricta
-$conn = pg_connect("host=$host dbname=$dbname user=$user password=$password");
-
-if (!$conn) {
-    error_log("Error PostgreSQL: " . pg_last_error());
-    die("Error 500: Fallo en conexión a base de datos");
+// Conexión con manejo mejorado de errores
+try {
+    $conn = pg_connect("host=$host port=$port dbname=$dbname user=$user password=$password");
+    
+    if (!$conn) {
+        throw new Exception("Error de conexión: " . pg_last_error());
+    }
+    
+    pg_set_client_encoding($conn, "UTF8");
+    
+} catch (Exception $e) {
+    error_log("Error PostgreSQL: " . $e->getMessage());
+    die(json_encode([
+        'success' => false,
+        'error' => 'Error 500: Fallo en conexión a base de datos'
+    ]));
 }
-
-// Configuración adicional recomendada
-pg_set_client_encoding($conn, "UTF8");
 ?>

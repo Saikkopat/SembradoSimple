@@ -18,7 +18,7 @@
 		<h1 class="h1 mb-2">Bienvenido al sistema de Sembrado</h1>
 		<div class="card py-5">
 			<div class="card-body">
-				<h2 class="my-1">Selecciona una operación:</h2>
+				<h3 class="my-1">Selecciona una operación:</3>
 				<div class="d-grid gap-4 py-3 mx-auto">
 					<button 
 						type="button" 
@@ -38,6 +38,27 @@
 						aria-label="Ir a Sembrado UBA">
 						<i class="far fa-lemon me-2" aria-hidden="true"></i>
 						Sembrado UBA
+					</button>
+				</div>
+				<div class="d-grid gap-4 py-3 mx-auto">
+					<h3 class="h3">Otras opciones:</h3>
+					<button 
+						type="button" 
+						class="w-50 btn text-white btn-lg mx-auto p-3 btn-personas"
+						onclick="window.location.href='listadoPersonasDisponibles.html'"
+						role="link"
+						aria-label="Ir al listado de personas disponibles">
+						<i class="fas fas fa-users me-2" aria-hidden="true"></i>
+						Listado de Personas disponibles
+					</button>
+					<button 
+						type="button" 
+						class="w-50 btn text-white btn-lg mx-auto p-3 btn-personas"
+						onclick="window.location.href='listadoSembradoUBA.html'"
+						role="link"
+						aria-label="Ir al listado de personas disponibles">
+						<i class="fas fas fa-users me-2" aria-hidden="true"></i>
+						Listado de Sembrado UBA
 					</button>
 				</div>
 			</div>

@@ -1,180 +1,194 @@
 $(document).ready(function () {
-	// Constantes y configuraciones
-	const API_BASE = 'php/api/sembradoUBA.php'; // Endpoint base de la API
-	const toastLive = document.getElementById('liveToast'); // Elemento del toast
-	const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive); // Instancia del toast
-	let currentData = {}; // Almacena los datos actuales del formulario
+	const API_BASE = 'php/api/sembradoUBA.php';
+	const toastLive = document.getElementById('liveToast');
+	const toastBootstrap = bootstrap.Toast.getOrCreateInstance(toastLive);
+	let currentData = {};
 
 	// Función para mostrar notificaciones
 	function showToast(message, type = 'success') {
-	const toastBody = toastLive.querySelector('.toast-body');
-	const toastHeader = toastLive.querySelector('.toast-header');
+		 const toastBody = toastLive.querySelector('.toast-body');
+		 const toastHeader = toastLive.querySelector('.toast-header');
 
-	// Configura el mensaje y el estilo del toast
-	toastBody.textContent = message;
-	toastHeader.className = `toast-header ${type === 'error' ? 'bg-danger text-white' : 'bg-success text-white'}`;
-	toastBootstrap.show();
+		 // Configura el mensaje y el estilo del toast
+		 toastBody.textContent = message;
+		 toastHeader.className = `toast-header ${type === 'error' ? 'bg-danger text-white' : 'bg-success text-white'}`;
+		 toastBootstrap.show();
 	}
 
-	// Cargar alcaldías iniciales
-	function loadAlcaldias() {
-	$.getJSON(API_BASE, { action: 'alcaldias' })
-		.done((data) => populateDropdown('#alcaldia', data.data))
-		.fail(() => showToast('Error cargando alcaldías', 'error'));
-	}
-
-	// Poblar un dropdown con datos
+	// Función para poblar un dropdown con datos
 	function populateDropdown(selector, data) {
-	const $select = $(selector).html('<option value="">Seleccionar...</option>');
+		 const $select = $(selector).html('<option value="">Seleccionar...</option>');
 
-	if (data && data.length > 0) {
-		data.forEach((item) => {
-			$select.append($(`<option value="${item.id}">${item.nombre}</option>`));
-		});
-		$(selector).prop('disabled', false); // Habilita el dropdown
-	} else {
-		$(selector).html('<option value="">No hay opciones disponibles</option>');
-	}
+		 if (data && data.length > 0) {
+			  data.forEach((item) => {
+					$select.append($(`<option value="${item.id}">${item.nombre}</option>`));
+			  });
+			  $(selector).prop('disabled', false); // Habilita el dropdown
+		 } else {
+			  $(selector).html('<option value="">No hay opciones disponibles</option>');
+		 }
 	}
 
-	// Cargar opciones dependientes de un dropdown
+	// Función para cargar alcaldías
+	function loadAlcaldias() {
+		 $.ajax({
+			  url: API_BASE,
+			  method: 'POST',
+			  dataType: 'json',
+			  data: { action: 'alcaldias' },
+			  success: (data) => populateDropdown('#alcaldia', data.data),
+			  error: () => showToast('Error cargando alcaldías', 'error')
+		 });
+	}
+
+	// Función para cargar opciones dependientes
 	function loadDependentOptions(action, selector, params) {
-	$.getJSON(API_BASE, { action, ...params })
-		.done((data) => {
-			populateDropdown(selector, data.data);
-			enableNextDropdown(selector); // Habilita el siguiente dropdown
-		})
-		.fail(() => {
-			showToast(`Error cargando ${action}`, 'error');
-			$(selector).prop('disabled', true); // Deshabilita el dropdown en caso de error
-		});
+		 $.ajax({
+			  url: API_BASE,
+			  method: 'POST',
+			  dataType: 'json',
+			  data: { action, ...params },
+			  success: (data) => {
+					populateDropdown(selector, data.data);
+					enableNextDropdown(selector); // Habilita el siguiente dropdown
+			  },
+			  error: () => {
+					showToast(`Error cargando ${action}`, 'error');
+					$(selector).prop('disabled', true); // Deshabilita el dropdown en caso de error
+			  }
+		 });
 	}
 
 	// Habilitar el siguiente dropdown en la secuencia
 	function enableNextDropdown(currentSelector) {
-	const dropdownsFlow = {
-		'#alcaldia': ['#casa', '#persona'], // Alcaldía habilita Casa y Persona
-		'#casa': '#coordinacion', // Casa habilita Coordinación
-		'#coordinacion': '#racimo', // Coordinación habilita Racimo
-		'#racimo': '#uba', // Racimo habilita UBA
-	};
+		 const dropdownsFlow = {
+			  '#alcaldia': ['#casa', '#persona'], // Alcaldía habilita Casa y Persona
+			  '#casa': '#coordinacion', // Casa habilita Coordinación
+			  '#coordinacion': '#racimo', // Coordinación habilita Racimo
+			  '#racimo': '#uba', // Racimo habilita UBA
+		 };
 
-	if (dropdownsFlow[currentSelector]) {
-		$(dropdownsFlow[currentSelector]).prop('disabled', false);
-	}
+		 if (dropdownsFlow[currentSelector]) {
+			  $(dropdownsFlow[currentSelector]).prop('disabled', false);
+		 }
 	}
 
 	// Reiniciar el formulario (excepto Alcaldía)
 	function resetForm() {
-	$('#formUBA')[0].reset(); // Limpia todos los campos
-	$('select').not('#alcaldia').prop('disabled', true); // Deshabilita todos los dropdowns excepto Alcaldía
-	loadAlcaldias(); // Recarga las alcaldías
+		 $('#formUBA')[0].reset(); // Limpia todos los campos
+		 $('select').not('#alcaldia').prop('disabled', true); // Deshabilita todos los dropdowns excepto Alcaldía
+		 loadAlcaldias(); // Recarga las alcaldías
 	}
 
 	// Limpiar campos dependientes al cambiar de Alcaldía
 	function clearDependentFields() {
-	$('#casa, #coordinacion, #racimo, #uba, #persona').val('').prop('disabled', true);
+		 $('#casa, #coordinacion, #racimo, #uba, #persona').val('').prop('disabled', true);
 	}
 
 	// Validar el formulario antes de enviar
 	function validateForm() {
-	let isValid = true;
-	const requiredFields = [
-		'#alcaldia',
-		'#casa',
-		'#coordinacion',
-		'#racimo',
-		'#uba',
-		'#persona'
-	];
+		 let isValid = true;
+		 const requiredFields = [
+			  '#alcaldia',
+			  '#casa',
+			  '#coordinacion',
+			  '#racimo',
+			  '#uba',
+			  '#persona'
+		 ];
 
-	// Valida campos requeridos
-	requiredFields.forEach((selector) => {
-		const value = $(selector).val();
-		if (!value) {
-			$(selector).addClass('is-invalid'); // Marca como inválido
-			isValid = false;
-		} else {
-			$(selector).removeClass('is-invalid'); // Remueve marca de inválido
-		}
-	});
+		 // Valida campos requeridos
+		 requiredFields.forEach((selector) => {
+			  const value = $(selector).val();
+			  if (!value) {
+					$(selector).addClass('is-invalid'); // Marca como inválido
+					isValid = false;
+			  } else {
+					$(selector).removeClass('is-invalid'); // Remueve marca de inválido
+			  }
+		 });
 
-	return isValid;
+		 return isValid;
 	}
 
 	// Evento de cambio para Alcaldía
 	$('#alcaldia').change(function () {
-	const selectedAlcaldia = $(this).val();
-	if (selectedAlcaldia) {
-		clearDependentFields(); // Limpia y deshabilita campos dependientes
-		currentData.id_alcaldia = selectedAlcaldia;
-		loadDependentOptions('casas', '#casa', { id_alcaldia: currentData.id_alcaldia });
-		loadDependentOptions('personas', '#persona', { id_alcaldia: currentData.id_alcaldia });
-	}
+		 const selectedAlcaldia = $(this).val();
+		 if (selectedAlcaldia) {
+			  clearDependentFields(); // Limpia y deshabilita campos dependientes
+			  currentData.id_alcaldia = selectedAlcaldia;
+			  loadDependentOptions('casas', '#casa', { id_alcaldia: currentData.id_alcaldia });
+			  loadDependentOptions('personas', '#persona', { id_alcaldia: currentData.id_alcaldia });
+		 }
 	});
 
 	// Evento de cambio para Casa
 	$('#casa').change(function () {
-	currentData.id_casa = $(this).val();
-	if (currentData.id_casa) {
-		loadDependentOptions('coordinaciones', '#coordinacion', { id_casa: currentData.id_casa });
-	}
+		 currentData.id_casa = $(this).val();
+		 if (currentData.id_casa) {
+			  loadDependentOptions('coordinaciones', '#coordinacion', { id_casa: currentData.id_casa });
+		 }
 	});
 
 	// Evento de cambio para Coordinación
 	$('#coordinacion').change(function () {
-	currentData.id_coordinacion = $(this).val();
-	if (currentData.id_coordinacion) {
-		loadDependentOptions('racimos', '#racimo', { id_coordinacion: currentData.id_coordinacion });
-	}
+		 currentData.id_coordinacion = $(this).val();
+		 if (currentData.id_coordinacion) {
+			  loadDependentOptions('racimos', '#racimo', { id_coordinacion: currentData.id_coordinacion });
+		 }
 	});
 
 	// Evento de cambio para Racimo
 	$('#racimo').change(function () {
-	currentData.id_racimo = $(this).val();
-	if (currentData.id_racimo) {
-		loadDependentOptions('ubas', '#uba', { id_racimo: currentData.id_racimo });
-	}
+		 currentData.id_racimo = $(this).val();
+		 if (currentData.id_racimo) {
+			  loadDependentOptions('ubas', '#uba', { id_racimo: currentData.id_racimo });
+		 }
 	});
 
-	// Enviar formulario
+	// Evento de envío del formulario
 	$('#formUBA').submit(function (e) {
-	e.preventDefault();
+		 e.preventDefault();
 
-	if (!validateForm()) {
-		showToast('Verifique todos los campos requeridos', 'error');
-		return;
-	}
+		 // Validación reforzada
+		 const personaId = $('#persona').val();
+		 const ubaId = $('#uba').val();
+		 
+		 if (!personaId || !ubaId) {
+			  showToast('Seleccione persona y UBA', 'error');
+			  return;
+		 }
 
-	const formData = {
-		action: 'guardar',
-		id_uba: $('#uba').val(),
-		persona: $('#persona').val(),
-	};
+		 const formData = {
+			  action: 'guardar',
+			  id_uba: $('#uba').val(),
+			  persona: $('#persona').val(),
+		 };
 
-	$.ajax({
-		url: API_BASE,
-		method: 'POST',
-		dataType: 'json',
-		data: formData,
-		beforeSend: () => {
-			$('#submitBtn').prop('disabled', true);
-			showToast('Registrando persona...', 'info');
-		},
-		success: (response) => {
-			if (response.success) {
-			showToast('Persona registrada y asignada exitosamente!');
-			resetForm(); // Reinicia el formulario después de un registro exitoso
-			} else {
-			showToast(response.error || 'Error en el registro', 'error');
-			}
-		},
-		error: (xhr) => {
-			const errorMsg = xhr.responseJSON?.error || 'Error de conexión';
-			showToast(errorMsg, 'error');
-		},
-		complete: () => $('#submitBtn').prop('disabled', false),
-	});
+		 $.ajax({
+			  url: API_BASE,
+			  method: 'POST',
+			  dataType: 'json',
+			  data: formData,
+			  beforeSend: () => {
+					$('#submitBtn').prop('disabled', true);
+					showToast('Registrando persona...', 'info');
+			  },
+			  success: (response) => {
+					if (response && response.success) {
+						 showToast('Persona registrada y asignada exitosamente!');
+						 resetForm();
+					} else {
+						 const errorMsg = response?.error || 'Error en el registro';
+						 showToast(errorMsg, 'error');
+					}
+			  },
+			  error: (xhr) => {
+					const errorMsg = xhr.responseJSON?.error || 'Error de conexión';
+					showToast(errorMsg, 'error');
+			  },
+			  complete: () => $('#submitBtn').prop('disabled', false),
+		 });
 	});
 
 	// Inicialización
