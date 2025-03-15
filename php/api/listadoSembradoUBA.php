@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . 'auxiliar.php';
+require_once __DIR__ . '/auxiliar.php';
 
 try {
     $action = $_POST['action'] ?? null;
@@ -13,6 +13,10 @@ try {
     switch ($action) {
         case 'obtener_personas_sembradas':
             handleObtenerPersonasSembradas();
+            break;
+
+        case 'eliminar_persona_sembrada':
+            handleEliminarPersonaSembrada();
             break;
 
         default:
@@ -50,4 +54,22 @@ function handleObtenerPersonasSembradas(): void {
     }
 
     sendDataResponse($result);
+}
+
+/**
+ * Elimina una persona sembrada
+ */
+function handleEliminarPersonaSembrada(): void {
+    $conn = getDatabaseConnection();
+    $idPersona = validatePostParam('id_persona');
+
+    // Eliminar la persona de la tabla sembrado_uba
+    $query = "DELETE FROM sembrado_uba WHERE id_persona = $1";
+    $result = pg_query_params($conn, $query, [$idPersona]);
+
+    if (!$result) {
+        throw new RuntimeException('Error al eliminar persona sembrada: ' . pg_last_error($conn));
+    }
+
+    echo json_encode(['success' => true, 'message' => 'Persona eliminada correctamente']);
 }

@@ -148,7 +148,9 @@ table {
 }
 
 #tablaPersonas th,
- #tablaPersonas td {
+ #tablaPersonas td,
+ #tablaPersonasSembradas th,
+ #tablaPersonasSembradas td{
 	height: 40px; /* Alto fijo para todas las celdas */
 	white-space: nowrap; /* Evita que el texto se divida en varias líneas */
 	overflow: hidden; /* Oculta el contenido que excede el tamaño */

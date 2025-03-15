@@ -220,7 +220,7 @@ function handleGuardar(): void {
     $conn = getDatabaseConnection();
     $idUba = validatePostParam('id_uba');
     $idPersona = validatePostParam('persona');
-    $idAlcaldia = validatePostParam('id_alcaldia'); // Obtener el id_alcaldia del formulario
+    $idAlcaldia = validatePostParam('id_alcaldia'); // Validar y obtener id_alcaldia
 
     try {
         pg_query($conn, "BEGIN TRANSACTION ISOLATION LEVEL READ COMMITTED");
@@ -243,7 +243,7 @@ function handleGuardar(): void {
         $limiteMax = (int)$limiteData['limite_max'];
 
         // Validar si se puede realizar la inserción
-        if ($limiteActual < $limiteMax) {
+        if ($limiteActual >= $limiteMax) {
             throw new RuntimeException('No es posible sembrar más, se ha alcanzado el límite máximo para esta alcaldía.');
         }
 

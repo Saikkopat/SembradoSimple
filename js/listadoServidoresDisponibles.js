@@ -1,5 +1,5 @@
 $(document).ready(function () {
-	const API_BASE = 'php/api/listadoPersonasDisponibles.php';
+	const API_BASE = 'php/api/listadoServidoresDisponibles.php';
 
 	// Cargar alcaldías al iniciar
 	cargarAlcaldias();

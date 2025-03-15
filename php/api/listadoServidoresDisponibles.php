@@ -38,11 +38,13 @@ function handlePersonas(): void {
                p.activo, a.nombre_alcaldia, p.telefono_personal, p.telefono_institucional
         FROM personas p
         LEFT JOIN alcaldias a ON p.id_alcaldia = a.id_alcaldia
+        WHERE p.id_persona IN (SELECT id_persona FROM posiciones_personas pp WHERE pp.id_posicion IN (4))
+        AND p.id_persona NOT IN (SELECT id_persona FROM sembrado_uba)
     ";
 
     $params = [];
     if ($idAlcaldia) {
-        $query .= " WHERE p.id_alcaldia = $1";
+        $query .= " AND p.id_alcaldia = $1";
         $params[] = $idAlcaldia;
     }
 

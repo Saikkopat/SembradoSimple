@@ -73,48 +73,35 @@ $(document).ready(function () {
 		 }
 	}
 
-	// Reiniciar el formulario (excepto Alcaldía)
-	function resetForm() {
-		 $('#formUBA')[0].reset(); // Limpia todos los campos
-		 $('select').not('#alcaldia').prop('disabled', true); // Deshabilita todos los dropdowns excepto Alcaldía
-		 loadAlcaldias(); // Recarga las alcaldías
+	// Reiniciar solo los campos UBA y Personas
+	function resetUbaYPersons() {
+		 $('#uba, #persona').val('').prop('disabled', true); // Limpia y deshabilita UBA y Personas
 	}
 
-	// Limpiar campos dependientes al cambiar de Alcaldía
+	// Recargar UBA y Personas basado en el valor actual de Racimo y Alcaldía
+	function recargarUbaYPersons() {
+		 const idRacimo = $('#racimo').val();
+		 const idAlcaldia = $('#id_alcaldia').val();
+
+		 if (idRacimo) {
+			  loadDependentOptions('ubas', '#uba', { id_racimo: idRacimo });
+		 }
+
+		 if (idAlcaldia) {
+			  loadDependentOptions('personas', '#persona', { id_alcaldia: idAlcaldia });
+		 }
+	}
+
+	// Limpiar campos dependientes al cambiar de Alcaldía (solo hasta Racimo)
 	function clearDependentFields() {
-		 $('#casa, #coordinacion, #racimo, #uba, #persona').val('').prop('disabled', true);
-	}
-
-	// Validar el formulario antes de enviar
-	function validateForm() {
-		 let isValid = true;
-		 const requiredFields = [
-			  '#alcaldia',
-			  '#casa',
-			  '#coordinacion',
-			  '#racimo',
-			  '#uba',
-			  '#persona'
-		 ];
-
-		 // Valida campos requeridos
-		 requiredFields.forEach((selector) => {
-			  const value = $(selector).val();
-			  if (!value) {
-					$(selector).addClass('is-invalid'); // Marca como inválido
-					isValid = false;
-			  } else {
-					$(selector).removeClass('is-invalid'); // Remueve marca de inválido
-			  }
-		 });
-
-		 return isValid;
+		 $('#casa, #coordinacion, #racimo').val('').prop('disabled', true);
 	}
 
 	// Evento de cambio para Alcaldía
 	$('#alcaldia').change(function () {
 		 const selectedAlcaldia = $(this).val();
 		 if (selectedAlcaldia) {
+			  $('#id_alcaldia').val(selectedAlcaldia); // Actualiza el campo oculto
 			  clearDependentFields(); // Limpia y deshabilita campos dependientes
 			  currentData.id_alcaldia = selectedAlcaldia;
 			  loadDependentOptions('casas', '#casa', { id_alcaldia: currentData.id_alcaldia });
@@ -148,35 +135,36 @@ $(document).ready(function () {
 
 	// Evento de envío del formulario
 	$('#formUBA').submit(function (e) {
-		e.preventDefault();
-  
-		const formData = {
-			 action: 'guardar',
-			 id_uba: $('#uba').val(),
-			 persona: $('#persona').val(),
-			 id_alcaldia: $('#id_alcaldia').val() // Asegúrate de incluir id_alcaldia
-		};
-  
-		$.ajax({
-			 url: API_BASE,
-			 method: 'POST',
-			 dataType: 'json',
-			 data: formData,
-			 success: (response) => {
-				  if (response && response.success) {
-						showToast('Persona registrada y asignada exitosamente!');
-						resetForm();
-				  } else {
-						const errorMsg = response?.error || 'Error en el registro';
-						showToast(errorMsg, 'error');
-				  }
-			 },
-			 error: (xhr) => {
-				  const errorMsg = xhr.responseJSON?.error || 'Error de conexión';
-				  showToast(errorMsg, 'error');
-			 }
-		});
-  });
+		 e.preventDefault();
+
+		 const formData = {
+			  action: 'guardar',
+			  id_uba: $('#uba').val(),
+			  persona: $('#persona').val(),
+			  id_alcaldia: $('#id_alcaldia').val() // Incluye id_alcaldia en los datos enviados
+		 };
+
+		 $.ajax({
+			  url: API_BASE,
+			  method: 'POST',
+			  dataType: 'json',
+			  data: formData,
+			  success: (response) => {
+					if (response && response.success) {
+						 showToast('Persona registrada y asignada exitosamente!');
+						 resetUbaYPersons(); // Limpia y deshabilita UBA y Personas
+						 recargarUbaYPersons(); // Recarga las opciones de UBA y Personas
+					} else {
+						 const errorMsg = response?.error || 'Error en el registro';
+						 showToast(errorMsg, 'error');
+					}
+			  },
+			  error: (xhr) => {
+					const errorMsg = xhr.responseJSON?.error || 'Error de conexión';
+					showToast(errorMsg, 'error');
+			  }
+		 });
+	});
 
 	// Inicialización
 	loadAlcaldias(); // Carga las alcaldías al cargar la página
